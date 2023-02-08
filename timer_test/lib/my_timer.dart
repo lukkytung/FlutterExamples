@@ -59,18 +59,18 @@ class MyTimer extends ChangeNotifier {
   MyTimerState state = MyTimerState.normal;
 
   // 是否正在计时（秒）
-  bool isCounting = false;
+  bool isRunning = false;
 
   ///当前剩余专注时长（秒）
-  int curFocus = 0;
+  int focusTick = 0;
 
   ///当前剩余休息时长（秒）
-  int curRest = 0;
+  int restTick = 0;
 
   ///最大专注时长（秒）
   int maxFocus = 0;
 
-  ///最大休息时长（秒
+  ///最大休息时长（秒）
   int maxRest = 0;
 
   bool get isActive {
@@ -85,27 +85,27 @@ class MyTimer extends ChangeNotifier {
     maxRest = restSec;
     _timer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
       // 开始倒计时
-      if (isCounting) {
+      if (isRunning) {
         // 专注时间倒计时
-        if (curFocus != maxFocus && curRest == 0) {
-          curFocus++;
+        if (focusTick != maxFocus && restTick == 0) {
+          focusTick++;
           state = MyTimerState.focus;
           notifyListeners();
           // 专注时间完成
-          if (curFocus == maxFocus) {
+          if (focusTick == maxFocus) {
             state = MyTimerState.focusFinish;
             notifyListeners();
           }
         }
         // 休息时间倒计时
-        if (curRest != maxRest && curFocus == maxFocus) {
-          curRest++;
+        if (restTick != maxRest && focusTick == maxFocus) {
+          restTick++;
           state = MyTimerState.rest;
           notifyListeners();
           // 休息时间完成
-          if (curRest == maxRest) {
+          if (restTick == maxRest) {
             state = MyTimerState.restFinish;
-            isCounting = false;
+            isRunning = false;
             // Timer倒计时结束，销毁Timer
             _disable();
             notifyListeners();
@@ -117,8 +117,8 @@ class MyTimer extends ChangeNotifier {
 
   /// 销毁Timer
   void _disable() {
-    curFocus = 0;
-    curRest = 0;
+    focusTick = 0;
+    restTick = 0;
     if (_timer != null) {
       _timer!.cancel();
       _timer = null;
@@ -152,10 +152,10 @@ class MyTimer extends ChangeNotifier {
 
   /// 开始或暂停Timer
   void _startOrPause({int focusValue = 0, int restValue = 0}) {
-    isCounting = !isCounting;
-    state = isCounting ? MyTimerState.start : MyTimerState.pause;
+    isRunning = !isRunning;
+    state = isRunning ? MyTimerState.start : MyTimerState.pause;
     notifyListeners();
-    if (MyTimer().isCounting) {
+    if (MyTimer().isRunning) {
       MyTimer()._enable(
         focusSec: focusValue,
         restSec: restValue,
@@ -169,7 +169,7 @@ class MyTimer extends ChangeNotifier {
     notifyListeners();
     _disable();
 
-    MyTimer().isCounting = true;
+    MyTimer().isRunning = true;
     MyTimer()._enable(
       focusSec: focusValue,
       restSec: restValue,
@@ -180,7 +180,7 @@ class MyTimer extends ChangeNotifier {
   void _stop() {
     state = MyTimerState.stop;
     notifyListeners();
-    MyTimer().isCounting = false;
+    MyTimer().isRunning = false;
 
     _disable();
   }

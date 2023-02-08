@@ -18,18 +18,18 @@ class _SecondViewState extends State<SecondView> {
   void initState() {
     super.initState();
 
-    if (MyTimer().isActive && !MyTimer().isCounting) {
+    if (MyTimer().isActive && !MyTimer().isRunning) {
       MyTimer().runTimer(type: MyTimerControlType.normal);
     }
 
     MyTimer().addListener(() {
-      curFocus = focusSec - MyTimer().curFocus;
-      curRest = restSec - MyTimer().curRest;
+      curFocus = focusSec - MyTimer().focusTick;
+      curRest = restSec - MyTimer().restTick;
 
       switch (MyTimer().state) {
         case MyTimerState.normal:
-          curFocus = MyTimer().curFocus;
-          curRest = MyTimer().curRest;
+          curFocus = MyTimer().focusTick;
+          curRest = MyTimer().restTick;
           if (curFocus == 0 && curRest == 0) {
             curFocus = focusSec;
             curRest = restSec;
@@ -81,7 +81,7 @@ class _SecondViewState extends State<SecondView> {
 
   void _startOrPause() {
     MyTimer().runTimer(
-      type: MyTimer().isCounting
+      type: MyTimer().isRunning
           ? MyTimerControlType.pause
           : MyTimerControlType.start,
       focusValue: focusSec,
@@ -143,7 +143,7 @@ class _SecondViewState extends State<SecondView> {
                   onPressed: () {
                     _startOrPause();
                   },
-                  child: MyTimer().isCounting
+                  child: MyTimer().isRunning
                       ? const Icon(Icons.pause)
                       : const Icon(Icons.play_arrow),
                 ),
