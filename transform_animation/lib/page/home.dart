@@ -41,7 +41,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     final curvedAnimation = CurvedAnimation(
       parent: controller,
       curve: Curves.easeOut,
-      reverseCurve: Curves.easeInOut,
+      reverseCurve: Curves.easeInOutExpo,
     );
 
     animation = Tween<double>(begin: 0.0, end: 1.0).animate(curvedAnimation);
@@ -78,18 +78,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           if (event.delta.dx > 10) {
             // 向右滑动
             print("===向右滑动");
-            openDrawer();
+            // openDrawer();
           } else if (event.delta.dx < -10) {
             // 向左滑动
             print("===向左滑动");
-            closDrawer();
-          }
-          if (event.delta.dy > 0) {
+            // closDrawer();
+          } else if (event.delta.dy > 10) {
             // 向下滑动
             // print("===向下滑动");
-          } else if (event.delta.dy < 0) {
+            closDrawer();
+          } else if (event.delta.dy < -10) {
             // 向上滑动
             // print("===向上滑动");
+            openDrawer();
           }
         },
         child: AnimatedBuilder(
@@ -98,7 +99,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
-                ..translate(100 * animation.value)
+                // ..translate(60 * animation.value)
                 ..scale(1 - 0.2 * animation.value),
               child: child,
             );
@@ -113,7 +114,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       blurRadius: 20.0)
                 ],
                 borderRadius:
-                    BorderRadius.all(Radius.circular(animation.value * 8.0))),
+                    BorderRadius.all(Radius.circular(animation.value * 16.0))),
             child: Center(
               child: Container(
                 width: 200,

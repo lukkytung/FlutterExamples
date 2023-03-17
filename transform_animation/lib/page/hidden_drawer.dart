@@ -5,44 +5,61 @@ class HiddenDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Stack(
       children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            color: Colors.blue,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Text(
-                  "First Page",
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  "Second Page",
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Container(
-            color: Colors.blue,
+        Container(color: Colors.blue),
+        const Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: CustomTabbar(),
           ),
         ),
       ],
+    );
+  }
+}
+
+class CustomTabbar extends StatefulWidget {
+  const CustomTabbar({super.key});
+
+  @override
+  State<CustomTabbar> createState() => _CustomTabbarState();
+}
+
+class _CustomTabbarState extends State<CustomTabbar> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Container(
+        color: Colors.transparent,
+        width: MediaQuery.of(context).size.width,
+        // height: 44,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            IconButton(
+                onPressed: () {},
+                iconSize: 32,
+                icon: const Icon(
+                  Icons.timelapse_outlined,
+                  color: Colors.white70,
+                )),
+            const SizedBox(
+              width: 30.0,
+            ),
+            IconButton(
+                onPressed: () {},
+                iconSize: 32,
+                icon: const Icon(
+                  Icons.alarm,
+                  color: Colors.white,
+                ))
+          ],
+        ),
+      ),
     );
   }
 }
