@@ -40,11 +40,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     final curvedAnimation = CurvedAnimation(
       parent: controller,
-      curve: Curves.easeOut,
-      reverseCurve: Curves.easeInOutQuart,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeOutCubic,
     );
 
     animation = Tween<double>(begin: 0.0, end: 1.0).animate(curvedAnimation);
+
+    // controller.forward();
   }
 
   /// 打开抽屉
@@ -72,32 +74,35 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Listener(
+        onPointerDown: (event) {
+          closDrawer();
+        },
         onPointerMove: (event) {
           // event.position 是指针在屏幕上的位置
           // event.delta 是指针移动的速度
           if (event.delta.dx > 10) {
             // 向右滑动
             print("===向右滑动");
-            openDrawer();
+            // openDrawer();
           } else if (event.delta.dx < -10) {
             // 向左滑动
             print("===向左滑动");
-            closDrawer();
+            // closDrawer();
           } else if (event.delta.dy > 10) {
             // 向下滑动
             // print("===向下滑动");
-            closDrawer();
+            openDrawer();
           } else if (event.delta.dy < -10) {
             // 向上滑动
             // print("===向上滑动");
-            openDrawer();
+            // openDrawer();
           }
         },
         child: AnimatedBuilder(
           animation: controller,
           builder: (context, child) {
             return Transform(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.center,
               transform: Matrix4.identity()
                 // ..translate(60 * animation.value)
                 ..scale(1 - 0.25 * animation.value),
@@ -105,17 +110,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             );
           },
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    color: Color.fromARGB(255, 185, 185, 185),
-                    offset: Offset(0, 0),
-                    blurRadius: 20.0)
-              ],
-              // borderRadius:
-              // BorderRadius.all(Radius.circular(animation.value * 16.0))
-            ),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color.fromARGB(255, 185, 185, 185),
+                      offset: Offset(0, 0),
+                      blurRadius: 20.0)
+                ],
+                borderRadius:
+                    BorderRadius.all(Radius.circular(animation.value * 16.0))),
             child: Center(
               child: Container(
                 width: 200,

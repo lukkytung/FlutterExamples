@@ -20,7 +20,7 @@ class HiddenDrawer extends StatelessWidget {
           ),
         ),
         const Align(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.bottomCenter,
           child: Material(
             color: Colors.transparent,
             child: CustomTabbar(),
@@ -43,9 +43,9 @@ class _CustomTabbarState extends State<CustomTabbar> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.transparent,
-      width: 80,
-      height: MediaQuery.of(context).size.width * 0.5,
-      child: Column(
+      width: MediaQuery.of(context).size.width * 0.5,
+      height: 80,
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -57,7 +57,7 @@ class _CustomTabbarState extends State<CustomTabbar> {
                 color: Colors.grey,
               )),
           const SizedBox(
-            height: 30.0,
+            width: 30.0,
           ),
           IconButton(
               onPressed: () {},
