@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:stopwatch/my_timer.dart';
+import 'package:stopwatch/timer_screen.dart';
 
-void main() => runApp(const MyApp());
+// void main() => runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+  registerBackgroundTask();
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -10,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Material App',
-      home: TimerWidget(),
+      home: TimerScreen(),
     );
   }
 }
@@ -83,7 +89,7 @@ class _TimerWidgetState extends State<TimerWidget> {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    setState(() {});
+
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 }
