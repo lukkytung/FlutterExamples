@@ -54,7 +54,7 @@ class BlurBezierWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 500.0,
+      height: 400.0,
       child: Stack(
         children: [
           // 使用CustomPaint绘制贝塞尔曲线
@@ -65,7 +65,7 @@ class BlurBezierWidget extends StatelessWidget {
               filter: ImageFilter.blur(
                   sigmaX: 20.0, sigmaY: 20.0), // 调整sigma值以改变模糊程度
               child: Container(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.5),
               ),
             ),
           ),
@@ -80,19 +80,11 @@ class MyViewClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     // 自定义形状
     final path = Path();
-    // path.moveTo(0, size.height / 2);
-    // path.lineTo(size.width / 2, size.height / 2 + 20);
-    // path.lineTo(size.width, size.height / 2);
-    // path.lineTo(size.width, size.height);
-    // path.lineTo(0, size.height);
-
     path.moveTo(0, size.height * 0.5); // 开始点
 
     // 添加贝塞尔曲线
     path.quadraticBezierTo(
         size.width * 0.5, size.height * 0.65, size.width, size.height * 0.5);
-    // path.quadraticBezierTo(
-    //     size.width * 0.8, size.height * 0.9, size.width, size.height * 0.5);
 
     // 添加其他线段或曲线以定义形状
     path.lineTo(size.width, size.height);
