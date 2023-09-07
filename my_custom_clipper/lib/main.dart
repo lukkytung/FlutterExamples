@@ -57,8 +57,6 @@ class BlurBezierWidget extends StatelessWidget {
       height: 400.0,
       child: Stack(
         children: [
-          // 使用CustomPaint绘制贝塞尔曲线
-          // 添加BackdropFilter并设置滤镜效果
           ClipPath(
             clipper: MyViewClipper(),
             child: BackdropFilter(
