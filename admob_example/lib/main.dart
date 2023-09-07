@@ -24,7 +24,6 @@ void main() async {
 
   await MobileAds.instance.initialize();
 
-  // await loadAd();
   runApp(MyApp());
 }
 
