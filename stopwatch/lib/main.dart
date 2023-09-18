@@ -1,249 +1,138 @@
-import 'package:flutter/material.dart';
-import 'package:stopwatch/my_timer.dart';
-import 'package:stopwatch/timer_screen.dart';
+import 'dart:async';
 
-// void main() => runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
+
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
-  registerBackgroundTask();
+  runApp(MyApp());
+  Workmanager().initialize(callbackDispatcher);
+}
+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) {
+    if (task == 'timerTask') {
+      TimerProvider().startTimer();
+    }
+    return Future.value(true);
+  });
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Material App',
-      home: TimerScreen(),
+    return MaterialApp(
+      home: TimerPage(),
     );
   }
 }
 
-class TimerWidget extends StatefulWidget {
-  const TimerWidget({super.key});
+class TimerProvider with ChangeNotifier {
+  int _secondsLeft = 1500; // 25 minutes
+  Timer? _timer;
+  bool _isRunning = false;
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _TimerWidgetState createState() => _TimerWidgetState();
-}
+  int get secondsLeft => _secondsLeft;
+  bool get isRunning => _isRunning;
 
-class _TimerWidgetState extends State<TimerWidget> {
-  final TimerModel _timerModel = TimerModel();
-
-  @override
-  void initState() {
-    super.initState();
-    _timerModel.startIsolate();
+  void startTimer() {
+    _isRunning = true;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsLeft > 0) {
+        _secondsLeft--;
+        notifyListeners();
+      } else {
+        _timer?.cancel();
+        _isRunning = false;
+        _showNotification();
+        notifyListeners();
+      }
+    });
   }
 
+  void pauseTimer() {
+    _timer?.cancel();
+    _isRunning = false;
+    notifyListeners();
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+    _isRunning = false;
+    _secondsLeft = 1500; // Reset timer to 25 minutes
+    notifyListeners();
+  }
+
+  void _showNotification() async {
+    FlutterLocalNotificationsPlugin notifications =
+        FlutterLocalNotificationsPlugin();
+    var androidDetails = const AndroidNotificationDetails(
+      'channel_id',
+      'Tomato Clock',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    var iosDetails = const DarwinNotificationDetails();
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
+    await notifications.show(
+      0,
+      'Time to take a break!',
+      'Your tomato clock timer has finished.',
+      platformChannelSpecifics,
+      payload: 'payload',
+    );
+  }
+}
+
+class TimerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Timer')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formatDuration(_timerModel.duration),
-              style: TextStyle(fontSize: 32),
-            ),
-            SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _timerModel.start();
-                    setState(() {});
-                  },
-                  child: Text('Start'),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    _timerModel.pause();
-                    setState(() {});
-                  },
-                  child: Text('Pause'),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    _timerModel.stop();
-                    setState(() {});
-                  },
-                  child: Text('Stop'),
-                ),
-              ],
-            ),
-          ],
+    return ChangeNotifierProvider(
+      create: (context) => TimerProvider(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Tomato Clock'),
         ),
+        body: TimerWidget(),
       ),
     );
   }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-
-    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
-  }
 }
 
+class TimerWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    TimerProvider timerProvider = Provider.of<TimerProvider>(context);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////////////////////////////
-// import 'dart:async';
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:stopwatch/timer_service.dart';
-
-// void main() {
-//   runApp(const MyApp());
-//   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-//   SystemChrome.setPreferredOrientations(
-//       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Stopwatch Timer',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//         visualDensity: VisualDensity.adaptivePlatformDensity,
-//       ),
-//       home: const MyHomePage(title: 'Stopwatch Timer'),
-//     );
-//   }
-// }
-
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({Key? key, required this.title}) : super(key: key);
-//   final String title;
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
-
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
-//   final Stopwatch _stopwatch = Stopwatch();
-//   bool _isRunning = false;
-//   Timer? _timer;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     const TimerService();
-//   }
-
-//   void _startTimer() {
-//     _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
-//       setState(() {
-//         _counter = _stopwatch.elapsedMilliseconds;
-//       });
-//     });
-//     _stopwatch.start();
-//     _isRunning = true;
-//   }
-
-//   void _stopTimer() {
-//     _timer?.cancel();
-//     _stopwatch.stop();
-//     _isRunning = false;
-//   }
-
-//   void _resetTimer() {
-//     _timer?.cancel();
-//     _stopwatch.reset();
-//     _counter = 0;
-//     _isRunning = false;
-//   }
-
-//   @override
-//   void dispose() {
-//     _stopTimer();
-//     super.dispose();
-//   }
-
-//   String _formatTime(int milliseconds) {
-//     int hundreds = (milliseconds / 10).truncate();
-//     int seconds = (hundreds / 100).truncate();
-//     int minutes = (seconds / 60).truncate();
-//     int hours = (minutes / 60).truncate();
-//     int millisecondsLeft = milliseconds - hundreds * 10;
-//     int secondsLeft = seconds - minutes * 60;
-//     int minutesLeft = minutes - hours * 60;
-//     String hoursStr = (hours % 24).toString().padLeft(2, '0');
-//     String minutesStr = minutesLeft.toString().padLeft(2, '0');
-//     String secondsStr = secondsLeft.toString().padLeft(2, '0');
-//     String hundredsStr = millisecondsLeft.toString().padLeft(1, '0');
-//     return '$hoursStr:$minutesStr:$secondsStr.$hundredsStr';
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.title),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             Text(
-//               _formatTime(_counter),
-//               style: const TextStyle(fontSize: 50),
-//             ),
-//             const SizedBox(height: 20),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 ElevatedButton(
-//                   onPressed: _isRunning ? _stopTimer : _startTimer,
-//                   child: Text(_isRunning ? 'STOP' : 'START'),
-//                 ),
-//                 const SizedBox(width: 20),
-//                 ElevatedButton(
-//                   onPressed: _resetTimer,
-//                   child: const Text('RESET'),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            '${(timerProvider.secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(timerProvider.secondsLeft % 60).toString().padLeft(2, '0')}',
+            style: TextStyle(fontSize: 48),
+          ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: timerProvider.isRunning
+                    ? timerProvider.pauseTimer
+                    : timerProvider.startTimer,
+                child: Text(timerProvider.isRunning ? '暂停' : '开始'),
+              ),
+              ElevatedButton(
+                onPressed: timerProvider.stopTimer,
+                child: Text('停止'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
