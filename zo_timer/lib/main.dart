@@ -58,8 +58,8 @@ class TimerData extends ChangeNotifier {
     _timer = null;
   }
 
-  void stopTimer() {
-    Workmanager().cancelAll();
+  void stopTimer() async {
+    await Workmanager().cancelAll();
     _timer?.cancel();
     _timer = null;
     _seconds = 0;
