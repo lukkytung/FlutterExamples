@@ -11,12 +11,17 @@ const stopTimerKey = "stopTimerKey";
     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
+    // final timerData = Provider.of<TimerData>(context);
+    print("=======callbackDispatcher:$task");
     if (task == startTimerKey) {
-      print("Native called background task:$startTimerKey");
+      print("===Native called background task:$startTimerKey");
+      TimerData.startBackgroundTimer();
     } else if (task == pauseTimerKey) {
-      print("Native called background task:$pauseTimerKey");
+      print("===Native called background task:$pauseTimerKey");
+
+      TimerData.stopBackgroundTimer();
     } else {
-      print("Native called background task:$stopTimerKey");
+      print("===Native called background task:$stopTimerKey");
     }
     return Future.value(true);
   });
@@ -24,42 +29,58 @@ void callbackDispatcher() {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  runApp(const MyApp());
+  Workmanager().initialize(
+      callbackDispatcher, // The top level function, aka callbackDispatcher
+      isInDebugMode:
+          true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+      );
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TimerData()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+  // runApp(const MyApp());
 }
 
 class TimerData extends ChangeNotifier {
   int _seconds = 0;
   Timer? _timer;
 
-  int get seconds => _seconds;
+  int get seconds => _timer == null ? _seconds : _timer!.tick;
 
   bool get isRunning => _timer != null && _timer!.isActive;
 
-  void startTimer() {
-    Workmanager().initialize(
-        callbackDispatcher, // The top level function, aka callbackDispatcher
-        isInDebugMode:
-            true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-        );
+  // 开启后台计时
+  static void startBackgroundTimer() {
+    // _timer?.cancel();
 
+    print("=======进入后台计时");
+    // _seconds++;
+  }
+
+  // 进入前台计时
+  static void stopBackgroundTimer() {
+    print("=======停止后台计时");
+  }
+
+  void startTimer() {
     if (!isRunning) {
-      Workmanager().registerOneOffTask(startTimerKey, startTimerKey);
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        _seconds++;
+        _seconds = timer.tick + _seconds;
         notifyListeners();
       });
     }
   }
 
   void pauseTimer() {
-    Workmanager().registerOneOffTask(pauseTimerKey, pauseTimerKey);
     _timer?.cancel();
     _timer = null;
   }
 
   void stopTimer() async {
-    await Workmanager().cancelAll();
     _timer?.cancel();
     _timer = null;
     _seconds = 0;
@@ -81,8 +102,50 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class TimerScreen extends StatelessWidget {
+class TimerScreen extends StatefulWidget {
   const TimerScreen({super.key});
+
+  @override
+  State<TimerScreen> createState() => _TimerScreenState();
+}
+
+class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // 监听App生命周期
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 在这里处理生命周期事件
+    print("===========生命周期回调:$state");
+    switch (state) {
+      case AppLifecycleState.inactive:
+        // 应用程序变得不活跃
+        break;
+      case AppLifecycleState.paused:
+        // 应用程序进入后台
+        Workmanager().registerPeriodicTask(
+          startTimerKey,
+          startTimerKey,
+          frequency: const Duration(seconds: 1),
+        );
+        break;
+      case AppLifecycleState.resumed:
+        // 应用程序恢复前台
+        Workmanager().registerOneOffTask(
+          pauseTimerKey,
+          pauseTimerKey,
+        );
+        break;
+      case AppLifecycleState.detached:
+        // 应用程序被终止
+        Workmanager().cancelAll();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +179,7 @@ class TimerScreen extends StatelessWidget {
                   },
                   child: Consumer<TimerData>(
                     builder: (context, timerData, _) {
+                      print("========Second:${timerData.seconds}");
                       return Text(timerData.isRunning ? '暂停' : '开始');
                     },
                   ),
