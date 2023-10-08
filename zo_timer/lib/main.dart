@@ -1,199 +1,146 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:workmanager/workmanager.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-const startTimerKey = "startTimerKey";
-const pauseTimerKey = "pauseTimerKey";
-const stopTimerKey = "stopTimerKey";
+void main() => runApp(TimerApp());
 
-@pragma(
-    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) {
-    // final timerData = Provider.of<TimerData>(context);
-    print("=======callbackDispatcher:$task");
-    if (task == startTimerKey) {
-      print("===Native called background task:$startTimerKey");
-      TimerData.startBackgroundTimer();
-    } else if (task == pauseTimerKey) {
-      print("===Native called background task:$pauseTimerKey");
-
-      TimerData.stopBackgroundTimer();
-    } else {
-      print("===Native called background task:$stopTimerKey");
-    }
-    return Future.value(true);
-  });
-}
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(
-      callbackDispatcher, // The top level function, aka callbackDispatcher
-      isInDebugMode:
-          true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-      );
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TimerData()),
-      ],
-      child: const MyApp(),
-    ),
-  );
-  // runApp(const MyApp());
-}
-
-class TimerData extends ChangeNotifier {
-  int _seconds = 0;
-  Timer? _timer;
-
-  int get seconds => _timer == null ? _seconds : _timer!.tick;
-
-  bool get isRunning => _timer != null && _timer!.isActive;
-
-  // 开启后台计时
-  static void startBackgroundTimer() {
-    // _timer?.cancel();
-
-    print("=======进入后台计时");
-    // _seconds++;
-  }
-
-  // 进入前台计时
-  static void stopBackgroundTimer() {
-    print("=======停止后台计时");
-  }
-
-  void startTimer() {
-    if (!isRunning) {
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        _seconds = timer.tick + _seconds;
-        notifyListeners();
-      });
-    }
-  }
-
-  void pauseTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void stopTimer() async {
-    _timer?.cancel();
-    _timer = null;
-    _seconds = 0;
-    notifyListeners();
-  }
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class TimerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ChangeNotifierProvider(
-        create: (context) => TimerData(),
-        child: const TimerScreen(),
-      ),
+      home: TimerScreen(),
     );
   }
 }
 
 class TimerScreen extends StatefulWidget {
-  const TimerScreen({super.key});
-
   @override
-  State<TimerScreen> createState() => _TimerScreenState();
+  _TimerScreenState createState() => _TimerScreenState();
 }
 
-class _TimerScreenState extends State<TimerScreen> with WidgetsBindingObserver {
+class _TimerScreenState extends State<TimerScreen> {
+  int _seconds = 0;
+  bool _isRunning = false;
+  bool _isPaused = false;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    // 监听App生命周期
-    WidgetsBinding.instance.addObserver(this);
+    _initializeNotifications();
+    _timer = Timer.periodic(const Duration(seconds: 1), _updateTimer);
+  }
+
+  void _initializeNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    // const IOSInitializationSettings initializationSettingsIOS =
+    //     IOSInitializationSettings(
+    //         requestAlertPermission: true,
+    //         requestBadgePermission: true,
+    //         requestSoundPermission: true,
+    //         onDidReceiveLocalNotification: (int id, String? title, String? body,
+    //             String? payload) async {
+    //           // 处理通知点击事件
+    //         });
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _updateTimer(Timer timer) {
+    if (_isRunning && !_isPaused) {
+      setState(() {
+        _seconds++;
+      });
+      _updateNotification();
+    }
+  }
+
+  void _updateNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'timer_channel', // 通道ID
+      '计时器通知', // 通道名称
+      importance: Importance.max,
+      priority: Priority.high,
+      ongoing: true, // 通知不可被清除
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0, // 通知ID
+      '计时器运行中', // 标题
+      '$_seconds 秒', // 内容（显示当前计时）
+      platformChannelSpecifics,
+      payload: 'timer_running', // 用于处理通知点击事件的数据
+    );
+  }
+
+  void _startTimer() {
+    setState(() {
+      _isRunning = true;
+      _isPaused = false;
+    });
+    _updateNotification();
+  }
+
+  void _pauseTimer() {
+    setState(() {
+      _isPaused = true;
+    });
+    _updateNotification();
+  }
+
+  void _stopTimer() {
+    setState(() {
+      _isRunning = false;
+      _isPaused = false;
+      _seconds = 0;
+    });
+    _updateNotification();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // 在这里处理生命周期事件
-    print("===========生命周期回调:$state");
-    switch (state) {
-      case AppLifecycleState.inactive:
-        // 应用程序变得不活跃
-        break;
-      case AppLifecycleState.paused:
-        // 应用程序进入后台
-        Workmanager().registerPeriodicTask(
-          startTimerKey,
-          startTimerKey,
-          frequency: const Duration(seconds: 1),
-        );
-        break;
-      case AppLifecycleState.resumed:
-        // 应用程序恢复前台
-        Workmanager().registerOneOffTask(
-          pauseTimerKey,
-          pauseTimerKey,
-        );
-        break;
-      case AppLifecycleState.detached:
-        // 应用程序被终止
-        Workmanager().cancelAll();
-        break;
-    }
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('计时器'),
+        title: Text('计时器 App'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Consumer<TimerData>(
-              builder: (context, timerData, _) {
-                return Text(
-                  '已经计时：${timerData.seconds} 秒',
-                  style: const TextStyle(fontSize: 24.0),
-                );
-              },
+            Text(
+              '$_seconds 秒',
+              style: TextStyle(fontSize: 48.0),
             ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    final timerData =
-                        Provider.of<TimerData>(context, listen: false);
-                    timerData.isRunning
-                        ? timerData.pauseTimer()
-                        : timerData.startTimer();
-                  },
-                  child: Consumer<TimerData>(
-                    builder: (context, timerData, _) {
-                      print("========Second:${timerData.seconds}");
-                      return Text(timerData.isRunning ? '暂停' : '开始');
-                    },
-                  ),
-                ),
-                const SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: () {
-                    final timerData =
-                        Provider.of<TimerData>(context, listen: false);
-                    timerData.stopTimer();
-                  },
-                  child: const Text('停止'),
-                ),
-              ],
+            SizedBox(height: 20.0),
+            if (!_isRunning)
+              ElevatedButton(
+                onPressed: _startTimer,
+                child: Text('开始计时'),
+              )
+            else
+              ElevatedButton(
+                onPressed: _pauseTimer,
+                child: Text(_isPaused ? '继续计时' : '暂停计时'),
+              ),
+            ElevatedButton(
+              onPressed: _stopTimer,
+              child: Text('停止计时'),
             ),
           ],
         ),
