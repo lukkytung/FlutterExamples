@@ -4,16 +4,21 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.widget.RemoteViews;
+import es.antonborri.home_widget.HomeWidgetBackgroundIntent;
+import es.antonborri.home_widget.HomeWidgetLaunchIntent;
+import es.antonborri.home_widget.HomeWidgetPlugin;
 
 /**
  * Implementation of App Widget functionality.
  */
-public class CounterWidget extends AppWidgetProvider {
+public class HomeWidget extends HomeWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+                                int appWidgetId,SharedPreferences widgetData) {
 
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
+       int counter = widgetData.getInt("counter",0);
+
+        CharSequence widgetText = context.getString(counter);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.counter_widget);
         views.setTextViewText(R.id.appwidget_text, widgetText);
@@ -22,11 +27,20 @@ public class CounterWidget extends AppWidgetProvider {
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
+    
+
+//    @Override
+//    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+//        // There may be multiple widgets active, so update all of them
+//        for (int appWidgetId : appWidgetIds) {
+//            updateAppWidget(context, appWidgetManager, appWidgetId);
+//        }
+//    }
+
     @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // There may be multiple widgets active, so update all of them
+    void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds, SharedPreferences widgetData) {
         for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId);
+            updateAppWidget(context, appWidgetManager, appWidgetId,widgetData);
         }
     }
 

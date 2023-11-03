@@ -6,7 +6,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="flutter_mixed_native_code">
         <receiver
-            android:name=".CounterWidget"
+            android:name=".HomeWidget"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -14,7 +14,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/counter_widget_info" />
+                android:resource="@xml/home_widget_info" />
         </receiver>
 
         <activity

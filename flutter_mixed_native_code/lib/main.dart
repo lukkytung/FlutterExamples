@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -55,6 +56,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
       _setInt(_counter);
     });
+
+    HomeWidget.saveWidgetData<int>('counter', _counter);
+    HomeWidget.updateWidget(
+      name: 'CounterWidget',
+      androidName: 'CounterWidget',
+      iOSName: 'CounterWidget',
+    );
   }
 
   void _setInt(int value) async {
