@@ -6,6 +6,17 @@
         android:icon="@mipmap/ic_launcher"
         android:label="home_screen_widget">
         <receiver
+            android:name=".NewAppWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_app_widget_info" />
+        </receiver>
+        <receiver
             android:name=".HomeScreenWidget"
             android:exported="true">
             <intent-filter>
