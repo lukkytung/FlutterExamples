@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mvc/models/home/home_model.dart';
 import 'package:flutter_mvc/views/home/home_view.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.purpleAccent),
         useMaterial3: true,
       ),
       home: const HomeView(title: 'Flutter Demo Home Page'),

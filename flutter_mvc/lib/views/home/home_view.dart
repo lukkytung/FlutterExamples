@@ -18,7 +18,7 @@ class HomeView extends StatelessWidget {
         title: Text(title),
       ),
       body: ChangeNotifierProvider<HomeModel>(
-        create: (context) => HomeModel(),
+        create: (context) => HomeModel.instance(),
         child: Consumer<HomeModel>(
           builder: (context, viewModel, child) {
             return Center(
