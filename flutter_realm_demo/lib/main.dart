@@ -60,6 +60,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void dispose() {
+    realm.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Realm Demo',
