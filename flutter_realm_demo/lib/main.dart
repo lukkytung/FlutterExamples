@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 
-import 'models/car.dart';
+import 'models/schemas.dart';
 
 void main() => runApp(const MyApp());
 

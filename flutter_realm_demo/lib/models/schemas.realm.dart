@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'car.dart';
+part of 'schemas.dart';
 
 // **************************************************************************
 // RealmObjectGenerator
@@ -99,6 +99,111 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Car._);
     register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Car, 'Car', [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('make', RealmPropertyType.string),
+      SchemaProperty('model', RealmPropertyType.string, optional: true),
+      SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
+      SchemaProperty('owner', RealmPropertyType.object,
+          optional: true, linkTarget: 'Person'),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  Dog(
+    ObjectId id,
+    String make, {
+    String? model,
+    int? kilometers = 500,
+    Person? owner,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<Dog>({
+        'kilometers': 500,
+      });
+    }
+    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set(this, 'make', make);
+    RealmObjectBase.set(this, 'model', model);
+    RealmObjectBase.set(this, 'kilometers', kilometers);
+    RealmObjectBase.set(this, 'owner', owner);
+  }
+
+  Dog._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  String get make => RealmObjectBase.get<String>(this, 'make') as String;
+  @override
+  set make(String value) => RealmObjectBase.set(this, 'make', value);
+
+  @override
+  String? get model => RealmObjectBase.get<String>(this, 'model') as String?;
+  @override
+  set model(String? value) => RealmObjectBase.set(this, 'model', value);
+
+  @override
+  int? get kilometers => RealmObjectBase.get<int>(this, 'kilometers') as int?;
+  @override
+  set kilometers(int? value) => RealmObjectBase.set(this, 'kilometers', value);
+
+  @override
+  Person? get owner => RealmObjectBase.get<Person>(this, 'owner') as Person?;
+  @override
+  set owner(covariant Person? value) =>
+      RealmObjectBase.set(this, 'owner', value);
+
+  @override
+  Stream<RealmObjectChanges<Dog>> get changes =>
+      RealmObjectBase.getChanges<Dog>(this);
+
+  @override
+  Dog freeze() => RealmObjectBase.freezeObject<Dog>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+      'make': make.toEJson(),
+      'model': model.toEJson(),
+      'kilometers': kilometers.toEJson(),
+      'owner': owner.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Dog value) => value.toEJson();
+  static Dog _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+        'make': EJsonValue make,
+        'model': EJsonValue model,
+        'kilometers': EJsonValue kilometers,
+        'owner': EJsonValue owner,
+      } =>
+        Dog(
+          fromEJson(id),
+          fromEJson(make),
+          model: fromEJson(model),
+          kilometers: fromEJson(kilometers),
+          owner: fromEJson(owner),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Dog._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
