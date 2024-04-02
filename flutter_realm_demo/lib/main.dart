@@ -28,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     var myCar = Car(ObjectId(), 'Tesla', model: 'Model S', kilometers: 42);
+
     realm.write(() {
       print('Adding a Car to Realm.');
       var car = realm
