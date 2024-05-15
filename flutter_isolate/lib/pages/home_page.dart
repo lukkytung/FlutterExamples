@@ -14,7 +14,7 @@ class HomePage extends ConsumerWidget {
       body: Center(
         child: Text(
           ref.watch(timerRiverpod).count.toString(),
-          style: Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.displayLarge,
         ),
       ),
       floatingActionButton: FloatingActionButton(
