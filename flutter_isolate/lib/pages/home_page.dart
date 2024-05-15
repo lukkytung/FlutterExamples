@@ -13,7 +13,7 @@ class HomePage extends ConsumerWidget {
         ),
       body: Center(
         child: Text(
-          ref.watch(timerRiverpod).count.toString(),
+          ref.watch(timerRiverpod).counter.toString(),
           style: Theme.of(context).textTheme.displayLarge,
         ),
       ),

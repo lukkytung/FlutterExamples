@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 
 class TimerNotifier extends ChangeNotifier {
-  int _count = 0;
+  int _counterer = 0;
   bool _isTiming = true;
 
-  get count => _count;
+  get counter => _counterer;
 
   get isTiming => _isTiming;
 
@@ -16,7 +16,7 @@ class TimerNotifier extends ChangeNotifier {
   }
 
   set setCount(int value) {
-    _count = value;
+    _counterer = value;
     notifyListeners();
   }
 
@@ -41,7 +41,7 @@ class TimerNotifier extends ChangeNotifier {
         await Isolate.spawn(isolateFunction, receivePort.sendPort);
     receivePort.listen((newCount) {
       setCount = newCount;
-      debugPrint('===Isolate count: $newCount');
+      debugPrint('===Isolate counter: $newCount');
       if (!isTiming) {
         receivePort.close();
         isolate.kill();
