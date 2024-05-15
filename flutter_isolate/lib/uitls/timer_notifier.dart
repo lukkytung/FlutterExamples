@@ -54,7 +54,6 @@ class TimerNotifier extends ChangeNotifier {
   static void isolateFunction(SendPort sendPort) {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       // 计时器逻辑
-      debugPrint('===tick: ${timer.tick}');
       sendPort.send(timer.tick);
     });
   }
