@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../uitls/timer_riverpod.dart';
 
-final timerRiverpod = ChangeNotifierProvider<TimerRiverpod>((ref) {
-  return TimerRiverpod();
-});
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
