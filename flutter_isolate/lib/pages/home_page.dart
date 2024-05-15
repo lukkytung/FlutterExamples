@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../uitls/timer_riverpod.dart';
-
+import '../uitls/riverpod.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -9,6 +8,9 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+          title: const Text('Timer'),
+        ),
       body: Center(
         child: Text(
           ref.watch(timerRiverpod).count.toString(),

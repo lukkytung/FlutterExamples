@@ -9,14 +9,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Material App',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-          appBar: AppBar(
-            title: const Text('Timer'),
-          ),
-          body: const HomePage()),
+      home: HomePage(),
     );
   }
 }

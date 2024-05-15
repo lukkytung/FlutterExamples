@@ -1,14 +1,9 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final timerRiverpod = ChangeNotifierProvider<TimerRiverpod>((ref) {
-  return TimerRiverpod();
-});
 
 
-class TimerRiverpod extends ChangeNotifier {
+class TimerNotifier extends ChangeNotifier {
   int _count = 0;
   bool _isTiming = true;
 
@@ -16,7 +11,7 @@ class TimerRiverpod extends ChangeNotifier {
 
   get isTiming => _isTiming;
 
-  TimerRiverpod() {
+  TimerNotifier() {
     playTimer();
   }
 
