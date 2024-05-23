@@ -33,3 +33,19 @@ class _Person {
   late String name;
   int age = 1;
 }
+
+@RealmModel()
+class _Tag {
+  @PrimaryKey()
+  late ObjectId id;
+
+  late String name;
+}
+
+@RealmModel()
+class _Item {
+  @PrimaryKey()
+  late ObjectId id;
+
+  late List<_Tag> tags;
+}

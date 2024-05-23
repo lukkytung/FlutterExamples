@@ -62,6 +62,10 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Car>(this);
 
   @override
+  Stream<RealmObjectChanges<Car>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Car>(this, keyPaths);
+
+  @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
   EJsonValue toEJson() {
@@ -167,6 +171,10 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Dog>(this);
 
   @override
+  Stream<RealmObjectChanges<Dog>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Dog>(this, keyPaths);
+
+  @override
   Dog freeze() => RealmObjectBase.freezeObject<Dog>(this);
 
   EJsonValue toEJson() {
@@ -257,6 +265,10 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Person>(this);
 
   @override
+  Stream<RealmObjectChanges<Person>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Person>(this, keyPaths);
+
+  @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
@@ -291,6 +303,142 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class Tag extends _Tag with RealmEntity, RealmObjectBase, RealmObject {
+  Tag(
+    ObjectId id,
+    String name,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set(this, 'name', name);
+  }
+
+  Tag._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  Stream<RealmObjectChanges<Tag>> get changes =>
+      RealmObjectBase.getChanges<Tag>(this);
+
+  @override
+  Stream<RealmObjectChanges<Tag>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Tag>(this, keyPaths);
+
+  @override
+  Tag freeze() => RealmObjectBase.freezeObject<Tag>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+      'name': name.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Tag value) => value.toEJson();
+  static Tag _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+        'name': EJsonValue name,
+      } =>
+        Tag(
+          fromEJson(id),
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Tag._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, Tag, 'Tag', [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('name', RealmPropertyType.string),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class Item extends _Item with RealmEntity, RealmObjectBase, RealmObject {
+  Item(
+    ObjectId id, {
+    Iterable<Tag> tags = const [],
+  }) {
+    RealmObjectBase.set(this, 'id', id);
+    RealmObjectBase.set<RealmList<Tag>>(this, 'tags', RealmList<Tag>(tags));
+  }
+
+  Item._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  RealmList<Tag> get tags =>
+      RealmObjectBase.get<Tag>(this, 'tags') as RealmList<Tag>;
+  @override
+  set tags(covariant RealmList<Tag> value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Item>> get changes =>
+      RealmObjectBase.getChanges<Item>(this);
+
+  @override
+  Stream<RealmObjectChanges<Item>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Item>(this, keyPaths);
+
+  @override
+  Item freeze() => RealmObjectBase.freezeObject<Item>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+      'tags': tags.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Item value) => value.toEJson();
+  static Item _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+        'tags': EJsonValue tags,
+      } =>
+        Item(
+          fromEJson(id),
+          tags: fromEJson(tags),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Item._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, Item, 'Item', [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+      SchemaProperty('tags', RealmPropertyType.object,
+          linkTarget: 'Tag', collectionType: RealmCollectionType.list),
     ]);
   }();
 
